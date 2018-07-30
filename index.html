@@ -4,44 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Podkova" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css" />
     <title>DOM and BOM task</title>
 </head>
 
-<body>
+<body class="body">
     <form class="insurance-form">
-        <div class="insurance-type">
-            <label for="#select-insurance-type" class="insurance-form__label">Вид страхования</label>
-            <select id="select-insurance-type" class="insurance-select">
-                <option class="insurance-select__item">ОСАГО</option>
-                <option class="insurance-select__item">КАСКО</option>
-                <option class="insurance-select__item">ДАГО</option>
+        <div class="insurance-form-item">
+            <label for="#select-insurance-type" class="insurance-form__label">Вид страхования:</label>
+            <select id="select-insurance-type" class="insurance-form__selector" onchange="setActiveInsuranceType(this);">
+                <option></option>
+                <option>ОСАГО</option>
+                <option>КАСКО</option>
+                <option>ДАГО</option>
             </select>
         </div>
-        <div class="insuranse-number">
-            <label for="#input-insurance-number" class="insurance-form__label">Номер страхования</label>
-            <input id="input-insurance-number" type="text">
+        <div class="insurance-form-item">
+            <label for="#input-insurance-number" class="insurance-form__label">Номер страхования:</label>
+            <input id="input-insurance-number" class="insurance-form__input" type="text">
         </div>
-        <div class="consumer">
-            <label for="#consumer-fio" class="insurance-form__label">Страхователь (ФИО)</label>
-            <input id="consumer-fio" type="text" placeholder="Иванов Иван Иванович">
+        <div class="insurance-form-item">
+            <label for="#consumer-fio" class="insurance-form__label">Страхователь (ФИО):</label>
+            <input id="consumer-fio" class="insurance-form__input" type="text" placeholder="Иванов Иван Иванович">
         </div>
-        <div class="sale-date">
-            <label for="#insurance-number-input" class="insurance-form__label">Дата продажи</label>
-            
+        <div class="insurance-form-item">
+            <label for="#insurance-date" class="insurance-form__label">Дата продажи:</label>
+            <input id="insurance-date" type="date" class="insurance-form__input">
         </div>
-        <div class="prize">
-            <label for="#prize-input" class="insurance-form__label">Страховая премия</label>
-            <input id="prize-input" type="number" placeholder="1000">
+        <div class="insurance-form-item">
+            <label for="#prize-input" class="insurance-form__label">Страховая премия(руб.):</label>
+            <input id="prize-input" class="insurance-form__input" type="number" placeholder="1000">
         </div>
-        <div class="discount">
-            <label for="#discount-input" class="insurance-form__label">Скидка</label>
-            <input id="discount-input" type="number" placeholder="5">
+        <div class="insurance-form-item">
+            <label for="#discount-input" class="insurance-form__label">Скидка(%):</label>
+            <input id="discount-input" class="insurance-form__input" type="number" placeholder="5" min="0" max="100">
         </div>
+        <button id="submit-insurance-button" class="insurance-form__button">Записать</button>
     </form>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/core.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.js"></script>
+    <div class="insurances">
+        <div class="insurances-header">
+            <p class="insurances-header__name">Список страховок</p>
+            <a id="clear-insurances-table" href="#" class="insurances-header__clear-table">
+                Очистить
+            </a>
+        </div>
+        <table id="insurances-table" class="insurances-table">
+            <tr>
+                <th class="insurances-table__header-item">Тип</th>
+                <th class="insurances-table__header-item">Номер</th>
+                <th class="insurances-table__header-item">Страхователь</th>
+                <th class="insurances-table__header-item">Дата продажи</th>
+                <th class="insurances-table__header-item">Страховая премия(руб.)</th>
+                <th class="insurances-table__header-item">Скидка(%)</th>
+                <th class="insurances-table__header-item">Удаление</th>
+            </tr>
+        </table>
+    </div>
     <script src="js/index.js"></script>
 </body>
 
