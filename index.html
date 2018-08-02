@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Podkova" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css" />
+    <title>DOM and BOM task</title>
+</head>
+
+<body class="body">
+    <form id="insurance-form" class="insurance-form">
+        <div class="insurance-form-item">
+            <label for="#select-insurance-type" class="insurance-form__label">Вид страхования:</label>
+            <select id="select-insurance-type" class="insurance-form__selector">
+                <option></option>
+                <option>ОСАГО</option>
+                <option>КАСКО</option>
+                <option>ДАГО</option>
+            </select>
+        </div>
+        <div class="insurance-form-item">
+            <label for="#input-insurance-number" class="insurance-form__label">Номер страхования:</label>
+            <input id="input-insurance-number" class="insurance-form__input" type="text">
+        </div>
+        <div class="insurance-form-item">
+            <label for="#consumer-fio" class="insurance-form__label">Страхователь (ФИО):</label>
+            <input id="consumer-fio" class="insurance-form__input" type="text" placeholder="Иванов Иван Иванович">
+        </div>
+        <div class="insurance-form-item">
+            <label for="#insurance-date" class="insurance-form__label">Дата продажи:</label>
+            <input id="insurance-date" type="date" class="insurance-form__input">
+        </div>
+        <div class="insurance-form-item">
+            <label for="#prize-input" class="insurance-form__label">Страховая премия(руб.):</label>
+            <input id="prize-input" class="insurance-form__input" type="number" placeholder="1000">
+        </div>
+        <div class="insurance-form-item">
+            <label for="#discount-input" class="insurance-form__label">Скидка(%):</label>
+            <input id="discount-input" class="insurance-form__input" type="number" placeholder="5" min="0" max="100">
+        </div>
+        <button id="submit-insurance-button" class="insurance-form__button">Записать</button>
+    </form>
+    <div class="insurances">
+        <div class="insurances-header">
+            <p class="insurances-header__name">Список страховок</p>
+            <a id="clear-insurances-table" href="#" class="insurances-header__clear-table">
+                Очистить
+            </a>
+        </div>
+        <table id="insurances-table" class="insurances-table">
+        </table>
+    </div>
+    <script src="js/index.js"></script>
+</body>
+
+</html>

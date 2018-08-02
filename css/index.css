@@ -1,0 +1,100 @@
+.body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Podkova', serif;
+}
+
+.insurance-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 32px;
+    border: 1px darkcyan solid;
+    border-radius: 8px;
+}
+
+.insurance-form-item {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+.insurance-form__label {
+    font-size: 20px;
+}
+
+.insurance-form__selector {
+    width: 316px;
+    outline: none;
+    border: 1px darkcyan solid;
+    border-radius: 4px;
+}
+
+.insurance-form__input {
+    width: 300px;
+    outline: none;
+    border: 1px darkcyan solid;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.insurance-form__input_valid-number {
+    border-color: green;
+}
+
+.insurance-form__input_invalid-number {
+    border-color: red;
+}
+
+.insurance-form__button {
+    align-self: center;
+    padding: 16px;
+    background-color: green;
+    color: white;
+    border: 1px lightgray solid;
+    border-radius: 16px;
+}
+
+.insurance-form__button_disabled {
+    background-color:lightgray;
+}
+
+.insurances-header {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+}
+
+.insurances-header__name {
+    flex-grow: 6;
+    font-size: 24px;
+}
+
+.insurances-header__clear-table {
+    flex-grow: 1;
+    width: fit-content;
+    height: fit-content;
+    padding: 4px;
+    border: 1px darkcyan solid;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    color: black;
+}
+
+.insurances-table {
+    border: 1px darkcyan solid;
+    border-collapse: collapse;
+}
+
+.insurances-table__item {
+    padding: 8px;
+    border: 1px darkcyan solid;
+}
+
+.insurances-table__header-item {
+    border: 1px darkcyan solid;
+    padding: 8px;
+    background-color: lightgray;
+}
