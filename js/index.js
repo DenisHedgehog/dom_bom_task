@@ -1,6 +1,8 @@
 class Form {
-    constructor(element) {
-        this.element = element;
+    constructor() {
+        this.findInputs();
+        this.findSubmitButton();
+        this.setListenerToInputs();
     }
 
     get formInputs() {
@@ -8,42 +10,86 @@ class Form {
     }
 
     set formInputs(formInputs) {
-        console.log(formInputs);
         this._formInputs = formInputs;
     }
 
-    addInput(input) {
-        // console.log(!(this.formInputs instanceof Array));
-        if (!(this.formInputs instanceof Array)) {
-            this.formInputs = [];
-        } 
-        this.formInputs.push(input);
+    get submitButton() {
+        return this._submitButton;
+    }
+
+    set submitButton(submitButton) {
+        this._submitButton = submitButton;
+    }
+
+    getFilledFormData() {
+        return {
+            insuranceType: this.formInputs[1].input.options[this.formInputs[1].input.selectedIndex].text,
+            insuranceNumber: this.formInputs[0].input.value,
+            insuranceConsumer: this.formInputs[2].input.value,
+            insuranceSaleDate: this.formInputs[3].input.value,
+            prize: this.formInputs[4].input.value,
+            discount: this.formInputs[5].input.value
+        }
+    }
+
+    findInputs() {
+        this.formInputs = [];
+        document.querySelectorAll('.insurance-form__input').forEach(input => {
+            if (input.id !== 'input-insurance-number') {
+                this.formInputs.push(new Input(input));
+            } else {
+                const numberImput = new InsuranceNumberInput(input);
+                this.formInputs.push(numberImput);
+                this.formInputs.push(new SelectInput(document.querySelectorAll('.insurance-form__selector')[0], numberImput));
+            }
+        });
+    }
+
+    findSubmitButton() {
+        this.submitButton = document.getElementById('submit-insurance-button');
+        this.submitButton.classList.add('insurance-form__button_disabled');
+    }
+
+    setListenerToInputs() {
+        this._formInputs.forEach(input => {
+            input.input.addEventListener('input', this.changeActivityState.bind(this));
+            input.input.addEventListener('input', input.changeInputStyle.bind(null, input));
+        });
     }
 
     isFilled() {
-        console.log(this);
-        this.formInputs.forEach(input => {
+        for (var input of this.formInputs) {
             if (!input.isValid) {
                 return false;
             }
-        });
+        };
         return true;
+    }
+
+    changeActivityState() {
+        this.isFilled() ? this.enableSubmitButton() : this.disableSubmitButton();
+    }
+
+    disableSubmitButton() {
+        this.submitButton.disabled = true;
+        this.submitButton.classList.add('insurance-form__button_disabled');
+    }
+
+    enableSubmitButton() {
+        this.submitButton.disabled = false;
+        this.submitButton.classList.remove('insurance-form__button_disabled');
     }
 }
 
 class Input {
-    constructor(input, submit, form) {
+    constructor(input) {
         this.input = input;
-        const isFilled = form.isFilled().bind(this);
-        console.log(form);
-        this.input.addEventListener('input', this.changeInputStyle.bind(this));
-        this.input.addEventListener('input', submit.changeActivityState);
     }
 
-    changeInputStyle() {
-        this.isValid ? 
-            this.input.classList.remove('insurance-form__input_invalid-number') :
-            this.input.classList.add('insurance-form__input_invalid-number');
+    changeInputStyle(input) {
+        input.isValid ?
+            input.input.classList.remove('insurance-form__input_invalid-number') :
+            input.input.classList.add('insurance-form__input_invalid-number');
     }
 
     get isValid() {
@@ -52,14 +98,14 @@ class Input {
 }
 
 class SelectInput extends Input {
-    constructor(input, submit, form) {
-        super(input, submit, form);
+    constructor(input, numberInput) {
+        super(input);
+        this.numberInput = numberInput;
         this.input.addEventListener('change', this.changeInsuranceType.bind(this));
     }
 
     changeInsuranceType() {
-        console.log(this.input.options[this.input.selectedIndex].text);
-        this._currentInsuranceType = this.input.options[this.input.selectedIndex].text;
+        this.numberInput.currentInsuranceType = this.input.options[this.input.selectedIndex].text;
 
     }
 
@@ -69,8 +115,8 @@ class SelectInput extends Input {
 }
 
 class InsuranceNumberInput extends Input {
-    constructor(input, submit, form) {
-        super(input, submit, form);
+    constructor(input) {
+        super(input);
     }
 
     get currentInsuranceType() {
@@ -79,21 +125,22 @@ class InsuranceNumberInput extends Input {
 
     set currentInsuranceType(insuranceType) {
         this._currentInsuranceType = insuranceType;
+        this.changeNumberInputPlaceholder(this.input, insuranceType);
     }
 
-    changeNumberInputPlaceholder() {
-        switch (this.currentInsuranceType) {
+    changeNumberInputPlaceholder(input, selectedType) {
+        switch (selectedType) {
             case 'КАСКО':
-                this.input.placeholder = '001AT-16/541268';
+                input.placeholder = '001AT-16/541268';
                 break;
             case 'ОСАГО':
-                this.input.placeholder = 'EEE0123456789';
+                input.placeholder = 'EEE0123456789';
                 break;
             case 'ДАГО':
-                this.input.placeholder = '001GO-16/21321';
+                input.placeholder = '001GO-16/21321';
                 break;
             default:
-                this.input.placeholder = '';
+                input.placeholder = '';
                 break;
         }
     }
@@ -117,94 +164,18 @@ class InsuranceNumberInput extends Input {
 }
 
 class Table {
-    constructor(table, tableHeader) {
-        this.table = table;
-        this.tableHeader = tableHeader;
-    }
-
-    updateTable(insuranceRows) {
-        this.table.innerHTML = '';
-        this.table.appendChild(this.tableHeader);
-        insuranceRows.array.forEach(insuranceRow => {
-            this.table.appendChild(insuranceRow);
-        });
-    }
-}
-
-class InsuranceList {
     constructor() {
-        !localStorage.getItem('insurances') ? this.list = [] : this.list = JSON.parse(localStorage.getItem('insurances'));
+        this.table = document.getElementById('insurances-table');
+        !localStorage.getItem('insurances') ? this.insurances = [] : this.insurances = JSON.parse(localStorage.getItem('insurances'));
+        this.setClearTableButton();
+        this.clearButton.addEventListener('click', this.clearTable.bind(this));
+        this.updateTable();
     }
 
-    get insuranceListRows() {
-
-    }
-
-    clear() {
-        localStorage.setItem('insurances', JSON.stringify([]));
-    }
-
-    addInsurance(insurance) {
-        list.push({
-            insuranceType: insurance.type,
-            insuranceNumber: insurance.number,
-            insuranceConsumer: insurance.consumerFio,
-            insuranceSaleDate: insurance.date,
-            prize: insurance.prize,
-            discount: insurance.discount
-        });
-        localStorage.setItem('insurances', JSON.stringify(insurances));
-        updateUI();
-        e.preventDefault();
-    }
-
-    removeInsurance(e) {
-        const removeId = Array.from(e.target.parentNode.parentNode.parentNode.children).indexOf(e.target.parentNode.parentNode);
-        console.log(e.target.parentNode.parentNode.parentNode.children);
-        console.log(e.target.parentNode.parentNode);
-        const insurances = getInsurances();
-        if (removeId === 1) {
-            insurances.shift();
-        } else {
-            insurances.splice(removeId - 1, removeId - 1);
-        }
-        localStorage.setItem('insurances', JSON.stringify(insurances));
-        updateUI();
-    }
-}
-
-class TableRow {
-    constructor(data) {
-        this.data = data;
-    }
-
-    get row() {
-        const row = document.createElement('tr');
-        row.classList.add('insurances-table__item');
-        row.innerHTML = `
-            <td class="insurances-table__item">${data.insuranceType}</td>
-            <td class="insurances-table__item">${data.insuranceNumber}</td>
-            <td class="insurances-table__item">${data.insuranceConsumer}</td>
-            <td class="insurances-table__item">${data.insuranceSaleDate}</td>
-            <td class="insurances-table__item">${data.prize}</td>
-            <td class="insurances-table__item">${data.discount}</td>
-            <td class="insurances-table__item">
-                <a href="#" class="insurance-table__delete-item">
-                    Удалить
-                </a>
-            </td>
-        `
-        return row;
-    }
-}
-
-class TableHeader extends TableRow {
-    constructor(row) {
-        super(row);
-    }
-
-    get row() {
-        return `
+    get tableHeader() {
+        const header = document.createElement('tr');
+        header.classList.add('insurances-table__header-item');
+        header.innerHTML = `
             <td class="insurances-table__item">Тип</td>
             <td class="insurances-table__item">Номер</td>
             <td class="insurances-table__item">Страхователь</td>
@@ -212,59 +183,86 @@ class TableHeader extends TableRow {
             <td class="insurances-table__item">Премия (руб.)</td>
             <td class="insurances-table__item">Скидка (%)</td>
             <td class="insurances-table__item">Удаление</td>
-        `;
+        `
+        return header;
+    }
+
+    get clearButton() {
+        return this._clearButton;
+    }
+
+    set clearButton(clearButton) {
+        this._clearButton = clearButton;
+    }
+
+    getInsuranceTableRow(insurance) {
+        const row = document.createElement('tr');
+        row.classList.add('insurances-table__item');
+        row.innerHTML = `
+            <td class="insurances-table__item">${insurance.insuranceType}</td>
+            <td class="insurances-table__item">${insurance.insuranceNumber}</td>
+            <td class="insurances-table__item">${insurance.insuranceConsumer}</td>
+            <td class="insurances-table__item">${insurance.insuranceSaleDate}</td>
+            <td class="insurances-table__item">${insurance.prize}</td>
+            <td class="insurances-table__item">${insurance.discount}</td>
+            <td class="insurances-table__item">
+                <a href="#" class="insurance-table__delete-item">
+                    Удалить
+                </a>
+            </td>
+        `
+        // .getElementsByClass('insurance-table__delete-item').addEventListener('click', this.removeInsurance)
+        // console.log(row.lastElementChild.children[0].addEventListener('click', this.removeInsurance));
+        row.lastElementChild.children[0].addEventListener('click', this.removeInsurance.bind(this));
+        return row; 
+    }
+
+    updateTable() {
+        this.table.innerHTML = '';
+        this.table.appendChild(this.tableHeader);
+        this.insurances.forEach(insurance => {
+            this.table.appendChild(this.getInsuranceTableRow(insurance));
+        });
+    }
+
+    clearTable() {
+        this.insurances = [];
+        localStorage.setItem('insurances', JSON.stringify(this.insurances));
+        this.updateTable();
+    }
+
+    addInsurance(insurance) {
+        console.log(insurance)
+        this.insurances.push({
+            insuranceType: insurance.insuranceType,
+            insuranceNumber: insurance.insuranceNumber,
+            insuranceConsumer: insurance.insuranceConsumer,
+            insuranceSaleDate: insurance.insuranceSaleDate,
+            prize: insurance.prize,
+            discount: insurance.discount
+        });
+        localStorage.setItem('insurances', JSON.stringify(this.insurances));
+        this.updateTable();
+    }
+
+    removeInsurance(e) {
+        const removeId = Array.from(e.target.parentNode.parentNode.parentNode.children).indexOf(e.target.parentNode.parentNode);
+        console.log(removeId)
+        if (removeId === 1) {
+            this.insurances.shift();
+        } else {
+            this.insurances.splice(removeId - 1, 1);
+        }
+        console.log(removeId)
+        localStorage.setItem('insurances', JSON.stringify(this.insurances));
+        this.updateTable();
+    }
+
+    setClearTableButton() {
+        this.clearButton = document.getElementById('clear-insurances-table');
     }
 }
 
-class Button {
-    constructor(button) {
-        this.button = button;
-    }
-
-    disableButton() {
-        this.button.disabled = true;
-        this.button.classList.add('insurance-form__button_disabled');
-    }
-    
-    enableButton() {
-        this.button.disabled = false;
-        this.button.classList.remove('insurance-form__button_disabled');
-    }
-
-    changeActivityState(state) {
-        state ? this.enableButton() : this.disableButton();
-    }
-}
-
-const form = new Form(document.getElementById('insurance-form'));
-
-const submitForm = new Button(document.getElementById('submit-insurance-button'));
-const clearInsurances = new Button(document.getElementById('clear-insurances-table'));
-
-// console.log(submitForm);
-
-const insuranceType = new SelectInput(document.getElementById('select-insurance-type'), submitForm, form);
-const insuranceNumber = new InsuranceNumberInput(document.getElementById('input-insurance-number'), submitForm, form);
-const insuranceConsumerFio = new Input(document.getElementById('consumer-fio'), submitForm, form);
-const insuranceDate = new Input(document.getElementById('insurance-date'), submitForm, form);
-const insurancePrize = new Input(document.getElementById('prize-input'), submitForm, form);
-const insuranceDiscount = new Input(document.getElementById('discount-input'), submitForm, form);
-
-const insurancesList = document.getElementById('insurances-table');
-
-form.addInput(insuranceType);
-form.addInput(insuranceNumber);
-form.addInput(insuranceConsumerFio);
-form.addInput(insuranceDate);
-form.addInput(insurancePrize);
-form.addInput(insuranceDiscount);
-
-console.log(form.formInputs)
-
-// submitForm.changeActivityState(form);
-submitForm.button.addEventListener('click', insurancesList.addInsurance);
-clearInsurances.button.addEventListener('click', insurancesList.clearInsurances);
-
-insuranceDiscount.input.addEventListener('input', function () {
-    insuranceDiscount.input.value > 100 ? insuranceDiscount.input.value = 100 : {};
-});
+const form = new Form();
+const table = new Table();
+form.submitButton.addEventListener('click', () => table.addInsurance(form.getFilledFormData()));
