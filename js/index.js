@@ -211,10 +211,8 @@ class Table {
                 </a>
             </td>
         `
-        // .getElementsByClass('insurance-table__delete-item').addEventListener('click', this.removeInsurance)
-        // console.log(row.lastElementChild.children[0].addEventListener('click', this.removeInsurance));
         row.lastElementChild.children[0].addEventListener('click', this.removeInsurance.bind(this));
-        return row; 
+        return row;
     }
 
     updateTable() {
@@ -232,7 +230,6 @@ class Table {
     }
 
     addInsurance(insurance) {
-        console.log(insurance)
         this.insurances.push({
             insuranceType: insurance.insuranceType,
             insuranceNumber: insurance.insuranceNumber,
@@ -247,13 +244,7 @@ class Table {
 
     removeInsurance(e) {
         const removeId = Array.from(e.target.parentNode.parentNode.parentNode.children).indexOf(e.target.parentNode.parentNode);
-        console.log(removeId)
-        if (removeId === 1) {
-            this.insurances.shift();
-        } else {
-            this.insurances.splice(removeId - 1, 1);
-        }
-        console.log(removeId)
+        this.insurances.splice(removeId - 1, 1);
         localStorage.setItem('insurances', JSON.stringify(this.insurances));
         this.updateTable();
     }
